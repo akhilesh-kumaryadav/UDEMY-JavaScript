@@ -223,7 +223,7 @@ poll.displayResults.call({ answers: [1, 5, 3, 9, 6, 1] });
 (() => console.log("this ARROW will never run again"))();
  */
 
-const secureBooking = function(){
+/* const secureBooking = function(){
   let passengerCount = 0;
 
   return function(){
@@ -236,4 +236,41 @@ const booker = secureBooking();
 booker();
 booker();
 
-console.dir(booker);
+console.dir(booker); */
+
+/* let f;
+
+const j = function () {
+  const a = 23;
+  f = function () {
+    console.log(2 * a);
+  };
+};
+
+j();
+f();
+ */
+
+/* const broadPassengers = function (n, wait) {
+  const perGroup = n / 3;
+
+  setTimeout(function () {
+    console.log(`We are now broading all ${n} Passengers`);
+    console.log(`There are 3 groups, each with ${perGroup} passengers`);
+  }, wait * 1000);
+
+  console.log(`Will start broading in ${wait} seconds`);
+};
+
+const perGroup= 1000;
+broadPassengers(180, 3);
+ */
+
+(function () {
+  const header = document.querySelector("h1");
+  header.style.color = "red";
+
+  document.querySelector("body").addEventListener("click", function () {
+    header.style.color = "blue";
+  });
+})();
