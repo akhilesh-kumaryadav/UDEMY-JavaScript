@@ -99,12 +99,12 @@ const lufthansa = {
 };
 
 //With event listener
-lufthansa.planes = 300;
+/* lufthansa.planes = 300;
 lufthansa.buyPlane = function () {
   console.log(this);
   this.planes++;
   console.log(this.planes);
-};
+}; */
 /* 
 document
   .querySelector(".buy")
@@ -146,7 +146,7 @@ book.call(lufthansa, ...data);
  */
 
 //PARTIAL APPLICATION
-const addTax = (rate, value) => value + rate * value;
+/* const addTax = (rate, value) => value + rate * value;
 console.log(addTax(0.1, 200));
 
 const addVAT = addTax.bind(null, 0.23);
@@ -160,4 +160,48 @@ const addTax1 = rate => {
 
 const rateAdded = addTax1(0.23);
 console.log(rateAdded(200));
-console.log(rateAdded(300));
+console.log(rateAdded(300)); */
+
+const poll = {
+  question: "What is your favourite programming language?",
+  options: ["0: JavaScript", "1: Python", "2: Rust", "3: C++"],
+  // This generates [0, 0, 0, 0]. More in the next section!
+  answers: new Array(4).fill(0),
+
+  //TASK 1
+  registerNewAnswer() {
+    //Get answer
+    const answer = Number(
+      prompt(
+        `${this.question}\n${this.options.join("\n")} \n(Write option number)`
+      )
+    );
+
+    //Register answer
+    typeof answer === "number" &&
+      answer >= 0 &&
+      answer <= 3 &&
+      this.answers[answer]++;
+
+    //Task 4
+    this.displayResults();
+    this.displayResults("string");
+  },
+
+  //TASK 3
+  displayResults(type = "array") {
+    if (type === "string")
+      console.log(`Poll results are ${this.answers.join(", ")}`);
+    else if (type === "array") console.log(this.answers);
+  },
+};
+
+//TASK 2
+document
+  .querySelector(".poll")
+  .addEventListener("click", poll.registerNewAnswer.bind(poll));
+
+//TASK 5
+poll.displayResults.call({ answers: [5, 2, 3] });
+poll.displayResults.call({ answers: [1, 5, 3, 9, 6, 1] }, "string");
+poll.displayResults.call({ answers: [1, 5, 3, 9, 6, 1] });
