@@ -162,7 +162,7 @@ const rateAdded = addTax1(0.23);
 console.log(rateAdded(200));
 console.log(rateAdded(300)); */
 
-const poll = {
+/* const poll = {
   question: "What is your favourite programming language?",
   options: ["0: JavaScript", "1: Python", "2: Rust", "3: C++"],
   // This generates [0, 0, 0, 0]. More in the next section!
@@ -205,3 +205,35 @@ document
 poll.displayResults.call({ answers: [5, 2, 3] });
 poll.displayResults.call({ answers: [1, 5, 3, 9, 6, 1] }, "string");
 poll.displayResults.call({ answers: [1, 5, 3, 9, 6, 1] });
+
+ */
+
+/* function(){
+  console.log('this will never run again');
+} */
+
+/* (function () {
+  console.log("this will never run again");
+});
+
+(function () {
+  console.log("this will never run again");
+})();
+
+(() => console.log("this ARROW will never run again"))();
+ */
+
+const secureBooking = function(){
+  let passengerCount = 0;
+
+  return function(){
+    passengerCount++;
+    console.log(`${passengerCount} passengers`);
+  }
+}
+
+const booker = secureBooking();
+booker();
+booker();
+
+console.dir(booker);
