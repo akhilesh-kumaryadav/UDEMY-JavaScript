@@ -1,4 +1,4 @@
-'use strict';
+/* 'use strict';
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -61,8 +61,10 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-const displayMovements = function (movements) {
+const displayMovements = function (movs, sort = false) {
   containerMovements.innerHTML = '';
+
+  const movements = sort ? movs.slice().sort((a, b) => a - b) : movs;
 
   movements.forEach((movement, index) => {
     const type = movement > 0 ? 'deposit' : 'withdrawal';
@@ -81,10 +83,10 @@ const displayMovements = function (movements) {
   });
 };
 
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+const calcDisplayBalance = function (acc) {
+  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
 
-  labelBalance.textContent = `${balance} €`;
+  labelBalance.textContent = `${acc.balance} €`;
 };
 
 const calcDisplaySummary = function (acc) {
@@ -119,6 +121,15 @@ const createUsername = accounts => {
 };
 createUsername(accounts);
 
+const UpdateUI = function (acc) {
+  //Display movements
+  displayMovements(acc.movements);
+  //Display balance
+  calcDisplayBalance(acc);
+  //Display summary
+  calcDisplaySummary(acc);
+};
+
 //Login functionality
 let currentAccount;
 
@@ -141,15 +152,85 @@ btnLogin.addEventListener('click', function (e) {
     //Clear fields
     inputLoginUsername.value = inputLoginPin.value = '';
     //Remove focus ie blinking cursor on the PIN
-    inputLoginPin.blur(); 
+    inputLoginPin.blur();
 
-    //Display movements
-    displayMovements(currentAccount.movements);
-    //Display balance
-    calcDisplayBalance(currentAccount.movements);
-    //Display summary
-    calcDisplaySummary(currentAccount );
+    UpdateUI(currentAccount);
   }
+});
+
+//Implementing the transfer
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+
+  inputTransferAmount.value = inputTransferTo.value = '';
+  inputTransferTo.blur();
+
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    amount <= currentAccount.balance &&
+    receiverAcc?.username !== currentAccount.username
+  ) {
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+
+    UpdateUI(currentAccount);
+  }
+});
+
+//Implementing the close account
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const confirmUser = inputCloseUsername.value;
+  const confirmPin = Number(inputClosePin.value);
+
+  inputCloseUsername.value = inputClosePin.value = '';
+  inputClosePin.blur();
+
+  if (
+    confirmUser === currentAccount.username &&
+    confirmPin === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+
+    //Delete Account
+    accounts.splice(index, 1);
+
+    //Hide UI
+    containerApp.style.opacity = 0;
+  }
+});
+
+//Implementing the loan
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+  inputLoanAmount.value = '';
+  inputLoanAmount.blur();
+
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    currentAccount.movements.push(amount);
+
+    UpdateUI(currentAccount);
+  }
+});
+
+//Implementing the sorting of the movements
+let toSort = true;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  displayMovements(currentAccount.movements, toSort);
+  toSort = !toSort;
 });
 
 /////////////////////////////////////////////////
@@ -259,3 +340,269 @@ console.log(totalDepositUSD);
  */
 
 /*   */
+
+/* const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+//Equality
+console.log(movements.includes(-130));
+
+//SOME
+console.log("----------------SOME");
+//Condition
+console.log(movements.some(mov => mov === -130));
+
+const anyDepositsAbove5000 = movements.some(mov => mov > 5000);
+console.log(anyDepositsAbove5000);
+
+//EVERY
+console.log('----------------EVERY');
+console.log(movements.every(mov => mov > 0));
+console.log(account4.movements.every(mov => mov > 0)); */
+
+//Using separate callback for DRY
+
+/* const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+const deposit = mov => mov > 0;
+
+console.log(movements.some(deposit));
+console.log(movements.every(deposit));
+console.log(movements.filter(deposit)); */
+
+/* //FLAT
+console.log('---------FLAT');
+const arr = [[1, 2, 3], [4, 5, 6], 7, 8];
+console.log(arr.flat());
+const arrDeep = [[1, [2, 3]], [[4, 5, 9], 6], 7, 8];
+console.log(arrDeep.flat());
+console.log(arrDeep.flat(2));
+
+//All accounts movements in 1 array
+//---------WITHOUT CHAINING
+const accountsMovements = accounts.map(acc => acc.movements);
+console.log(accountsMovements);
+const flatAcc = accountsMovements.flat();
+console.log(flatAcc);
+const total = flatAcc.reduce((acc, mov) => acc + mov);
+console.log(total);
+
+//---------WITH CHAINING
+const movTotal = accounts
+  .map(acc => acc.movements)
+  .flat()
+  .reduce((acc, mov) => acc + mov);
+console.log(movTotal);
+
+//FLATMAP
+console.log('----------------FLATMAP');
+const movTotal1 = accounts
+  .flatMap(acc => acc.movements)
+  .reduce((acc, mov) => acc + mov);
+console.log(movTotal1); */
+
+/* console.log('------------NUMBERS');
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+console.log('-----ASCENDING');
+movements.sort((a, b) => {
+  if (a > b) return 1;
+  if (a < b) return -1;
+});
+console.log(movements);
+
+console.log('-----DESCENDING');
+movements.sort((a, b) => {
+  if (a > b) return -1;
+  if (a < b) return 1;
+});
+console.log(movements);
+
+console.log('-----COMPACT WAY');
+movements.sort((a, b) => a - b);
+console.log(movements);
+ */
+
+/* const arr = [1, 2, 3, 4, 5, 6, 7];
+console.log(new Array(1, 2, 3, 4, 5, 6, 7));
+
+console.log('------EMPTY ARRAY WITH FILL FUNCTION');
+const x = new Array(7);
+console.log(x);
+
+x.fill(1);
+console.log(x);
+x.fill(-2, 3);
+console.log(x);
+x.fill(69, 2, 6);
+console.log(x);
+
+console.log('------ARRAY from() method');
+const y = Array.from({ length: 7 }, () => 1);
+console.log(y);
+
+const z = Array.from({ length: 7 }, (cur, i) => i + 1);
+console.log(z); */
+
+/* labelBalance.addEventListener('click', ()=>{
+  const movementUI = Array.from(document.querySelectorAll(".movements__value")).map(ele => Number(ele.textContent.replace('€', '')));
+
+  const movementUI = Array.from(
+    document.querySelectorAll('.movements__value'),
+    ele => Number(ele.textContent.replace('€', ''))
+  );
+
+  console.log(movementUI);
+}) */
+
+/* //FIND TOTAL BANK DEPOSITS
+const bankDepositsSum = accounts
+  .flatMap(acc => acc.movements)
+  .filter(mov => mov > 0)
+  .reduce((acc, mov) => acc + mov, 0);
+
+console.log(bankDepositsSum);
+
+//Number of deposits greater than 1000
+const deposit1000Num1 = accounts
+  .flatMap(acc => acc.movements)
+  .filter(mov => mov > 1000)
+  .reduce((acc, mov, i) => (acc = i + 1));
+console.log(deposit1000Num1);
+
+const deposit1000Num = accounts
+  .flatMap(acc => acc.movements)
+  .filter(mov => mov > 1000).length;
+
+console.log(deposit1000Num);
+
+const deposit1000Num2 = accounts
+  .flatMap(acc => acc.movements)
+  .reduce((count, mov) => (mov > 1000 ? count + 1 : count), 0);
+
+console.log(deposit1000Num2); */
+
+/* //CRAZY case of reduce method
+const finalSums = accounts
+  .flatMap(acc => acc.movements)
+  .reduce(
+    (sum, cur) => {
+      cur > 0 ? (sum.deposits += cur) : (sum.withdrawals += Math.abs(cur));
+
+      sum[cur > 0 ? 'deposits' : 'withdrawals'] += cur;
+
+      return sum;
+    },
+    { deposits: 0, withdrawals: 0 }
+  );
+
+console.log(finalSums);
+ */
+
+/* const convertTitleCase = function (title) {
+  const exceptions = ['a', 'an', 'the', 'but', 'or', 'on', 'in', 'with'];
+
+  const tileCase = title
+    .toLowerCase()
+    .split(' ')
+    .map(word =>
+      exceptions.includes(word) ? word : word[0].toUpperCase() + word.slice(1)
+    )
+    .join(' ');
+
+  return tileCase;
+};
+
+console.log(convertTitleCase('this is a title string'));
+console.log(convertTitleCase('here is the another title with EXAMPLE')); */
+
+//asdf */
+
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Matilda'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Michael'] },
+];
+
+console.log('---------- TASK 8 ----------');
+dogs.forEach(dog => {
+  dog.recommendedFood = dog.weight * 0.75 * 28;
+});
+
+const dogsCopy = dogs
+  .slice()
+  .sort((a, b) => a.recommendedFood - b.recommendedFood);
+
+console.log(dogsCopy);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* console.log(dogs.some(dog => dog.curFood === dog.recommendedFood));
+
+console.log('---------- TASK 6 ----------');
+console.log(
+  dogs.some(
+    dog =>
+      dog.curFood > 0.9 * dog.recommendedFood &&
+      dog.curFood < 1.1 * dog.recommendedFood
+  )
+);
+
+console.log('---------- TASK 7 ----------');
+
+const okayDogs = dogs.filter(
+  dog =>
+    dog.curFood > 0.9 * dog.recommendedFood &&
+    dog.curFood < 1.1 * dog.recommendedFood
+);
+console.log(okayDogs); */
+
+/* const ownerEatTooMuch = dogs
+  .filter(dog => dog.curFood > dog.recommendedFood)
+  .flatMap(dog => dog.owners);
+console.log(ownerEatTooMuch);
+
+const ownerEatTooLitte = dogs
+  .filter(dog => dog.curFood < dog.recommendedFood)
+  .flatMap(dog => dog.owners);
+console.log(ownerEatTooLitte);
+
+console.log(`${ownerEatTooMuch.join(' and ')}'s dogs eat too much!!!`)
+console.log(`${ownerEatTooLitte.join(' and ')}'s dogs eat too little!!!`); */
+
+/* dogs.forEach(dog => {
+  dog.recommendedFood = dog.weight * 0.75 * 28;
+});
+console.log(dogs);
+
+console.log('---------- TASK 2 ----------');
+const dogSarah = dogs.find(dog => dog.owners.includes('Sarah'));
+console.log(
+  dogSarah.curFood > dogSarah.recommendedFood ? 'Too Much' : 'Too Little'
+);
+
+console.log('---------- TASK 3 ----------');
+const ownerEatTooMuch = dogs
+  .filter(dog => dog.curFood > dog.recommendedFood)
+  .flatMap(dog => dog.owners);
+console.log(ownerEatTooMuch);
+
+const ownerEatTooLitte = dogs
+  .filter(dog => dog.curFood < dog.recommendedFood)
+  .flatMap(dog => dog.owners);
+console.log(ownerEatTooLitte);
+ */
